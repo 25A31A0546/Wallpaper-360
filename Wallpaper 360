@@ -1,0 +1,80 @@
+"""
+365-Day Progress Wallpaper
+A minimal AMOLED wallpaper that fills one dot every day.
+Time decides the progress.
+"""
+
+from datetime import date
+from PIL import Image, ImageDraw, ImageFont
+
+# Screen size (Android friendly)
+WIDTH = 1080
+HEIGHT = 2400
+
+# AMOLED colors
+BACKGROUND = (0, 0, 0)
+FILLED_DOT = (0, 220, 140)
+EMPTY_DOT = (50, 50, 50)
+
+# Dot design
+DOT_RADIUS = 7
+DOT_SPACING = 16
+DOTS_PER_ROW = 30
+
+# Get today's day number
+today = date.today()
+day_number = today.timetuple().tm_yday
+
+# Create wallpaper
+wallpaper = Image.new("RGB", (WIDTH, HEIGHT), BACKGROUND)
+draw = ImageDraw.Draw(wallpaper)
+
+# Fonts (safe fallback)
+try:
+    title_font = ImageFont.truetype("arial.ttf", 42)
+    small_font = ImageFont.truetype("arial.ttf", 26)
+except:
+    title_font = ImageFont.load_default()
+    small_font = ImageFont.load_default()
+
+# Header
+draw.text((60, 80), "365", fill=(255, 255, 255), font=title_font)
+draw.text((60, 140), f"Day {day_number}", fill=(160, 160, 160), font=small_font)
+
+# Draw dots
+x_start = 60
+y_start = 260
+current_dot = 1
+y = y_start
+
+while current_dot <= 365:
+    x = x_start
+    for _ in range(DOTS_PER_ROW):
+        if current_dot > 365:
+            break
+
+        color = FILLED_DOT if current_dot <= day_number else EMPTY_DOT
+
+        draw.ellipse(
+            (x, y, x + DOT_RADIUS * 2, y + DOT_RADIUS * 2),
+            fill=color
+        )
+
+        x += DOT_RADIUS * 2 + DOT_SPACING
+        current_dot += 1
+
+    y += DOT_RADIUS * 2 + DOT_SPACING
+
+# Bottom line
+draw.text(
+    (60, HEIGHT - 120),
+    "One dot filled. Whether you showed up or not.",
+    fill=(120, 120, 120),
+    font=small_font
+)
+
+# Save wallpaper
+wallpaper.save("365_amoled_progress_wallpaper.png")
+
+print("Wallpaper generated successfully.")
+print(f"Day {day_number} marked out of 365.")
